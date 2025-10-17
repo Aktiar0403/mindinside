@@ -93,7 +93,33 @@
             Question <span id="currentQuestionNumber">1</span> of <span id="totalQuestions">10</span>
         </div>
     </div>
+    <!-- Add this right after the question header in questionScreen -->
+<div class="big-timer-container">
+    <div class="timer-motivation">
+        <div class="motivation-icon">⏳</div>
+        <h3 class="motivation-text">This is the time you will be investing in yourself</h3>
+        <p class="motivation-subtext">15 minutes that could change your self-awareness forever</p>
+    </div>
     
+    <div class="big-timer-display">
+        <div class="timer-circle">
+            <svg class="timer-svg" width="200" height="200">
+                <circle class="timer-background" cx="100" cy="100" r="90"></circle>
+                <circle class="timer-progress" cx="100" cy="100" r="90"></circle>
+            </svg>
+            <div class="timer-text">
+                <div id="bigTimerDisplay" class="timer-time">15:00</div>
+                <div class="timer-label">minutes left</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="timer-encouragement">
+        <div class="encouragement-message" id="encouragementMessage">
+            💫 Every second brings you closer to self-discovery
+        </div>
+    </div>
+</div>
     <!-- ADD THIS LANGUAGE SELECTOR FOR QUESTION SCREEN -->
     <div class="language-selector-question">
         <div class="language-options-question">
@@ -236,5 +262,16 @@
     <script src="js/analytics.js"></script>
     <script src="js/pdf-generator.js"></script>
     <script src="js/app.js"></script>
+    <!-- Time's Up Modal -->
+<div id="timesUpModal" class="times-up-modal">
+    <div class="times-up-content">
+        <div class="times-up-icon">⏰</div>
+        <h2>Time's Up!</h2>
+        <p>Your 15-minute self-investment session is complete. Let's see your amazing results and continue your journey of self-discovery!</p>
+        <button id="viewResultsBtn" class="btn primary" style="background: white; color: #667eea; font-weight: 600; padding: 12px 30px;">
+            View My Results →
+        </button>
+    </div>
+</div>
 </body>
 </html>

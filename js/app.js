@@ -1,10 +1,11 @@
-// js/app.js - Complete Psychometric Test Application with Sentiment Slider
+// js/app.js - Complete Psychometric Test Application with 15-Minute Timer
 // ===== VARIABLE PACING & MICRO-INTERACTIONS =====
 class EngagementManager {
     constructor() {
         this.lastAnswerTime = Date.now();
         this.answerSpeeds = [];
         this.questionModes = ['default', 'quick', 'reflection'];
+        
         this.encouragementMessages = [
             "Great insight! 🎯",
             "Building self-awareness! 🌱",
@@ -16,6 +17,17 @@ class EngagementManager {
             "Uncovering your superpowers! 🦸",
             "Growth in progress! 📈",
             "Mindfulness in action! 🪷"
+        ];
+
+        this.timerEncouragementMessages = [
+            "💫 Every second brings you closer to self-discovery",
+            "🌟 You're building lifelong self-awareness skills",
+            "🎯 This investment will pay dividends in personal growth",
+            "🚀 Your future self is thanking you for this time",
+            "🌈 Each minute spent here creates a brighter tomorrow",
+            "⚡ You're charging your emotional intelligence",
+            "🎁 This is the gift of self-knowledge unfolding",
+            "🔍 Discovering the amazing person you are"
         ];
     }
 
@@ -36,6 +48,11 @@ class EngagementManager {
 
         // Check for pacing variation
         this.adjustQuestionPacing();
+
+        // Update timer encouragement occasionally
+        if (Math.random() > 0.8) { // 20% chance
+            this.updateTimerEncouragement();
+        }
     }
 
     triggerMicroCelebration() {
@@ -59,6 +76,40 @@ class EngagementManager {
                 }, 1500);
             }
         }
+
+        // Celebrate timer milestones
+        this.celebrateTimerMilestones();
+    }
+
+    celebrateTimerMilestones() {
+        const timeLeft = psychometricApp?.state?.timer?.timeLeft || 0;
+        const minutesLeft = Math.floor(timeLeft / 60);
+        
+        // Celebrate when crossing minute boundaries
+        if (timeLeft % 60 === 0 && minutesLeft > 0 && minutesLeft <= 15) {
+            this.showMilestoneCelebration(`${minutesLeft} minutes remaining!`);
+        }
+    }
+
+    showMilestoneCelebration(message) {
+        const celebration = document.createElement('div');
+        celebration.className = 'milestone-celebration';
+        celebration.innerHTML = `
+            <div class="celebration-content">
+                <span class="celebration-emoji">🎉</span>
+                <span class="celebration-text">${message}</span>
+            </div>
+        `;
+        document.body.appendChild(celebration);
+
+        // Animate in
+        setTimeout(() => celebration.classList.add('show'), 100);
+
+        // Remove after 2 seconds
+        setTimeout(() => {
+            celebration.classList.remove('show');
+            setTimeout(() => celebration.remove(), 500);
+        }, 2000);
     }
 
     showEncouragement() {
@@ -88,6 +139,22 @@ class EngagementManager {
         }, 3000);
     }
 
+    updateTimerEncouragement() {
+        const encouragementElement = document.getElementById('encouragementMessage');
+        if (!encouragementElement) return;
+        
+        const message = this.timerEncouragementMessages[
+            Math.floor(Math.random() * this.timerEncouragementMessages.length)
+        ];
+        encouragementElement.textContent = message;
+        
+        // Add a subtle animation
+        encouragementElement.classList.add('message-update');
+        setTimeout(() => {
+            encouragementElement.classList.remove('message-update');
+        }, 1000);
+    }
+
     adjustQuestionPacing() {
         const answered = psychometricApp.getAnsweredQuestionsCount();
         const questionCard = document.querySelector('.question-card');
@@ -107,6 +174,29 @@ class EngagementManager {
             this.updateQuestionContext("⚡ Quick Insight");
         } else {
             this.updateQuestionContext("🎯 Core Assessment");
+        }
+
+        // Adjust based on time pressure
+        this.adjustForTimePressure();
+    }
+
+    adjustForTimePressure() {
+        const timeLeft = psychometricApp?.state?.timer?.timeLeft || 0;
+        const minutesLeft = Math.floor(timeLeft / 60);
+        const questionCard = document.querySelector('.question-card');
+        
+        if (!questionCard) return;
+
+        // Remove time pressure classes
+        questionCard.classList.remove('time-pressure-low', 'time-pressure-medium', 'time-pressure-high');
+
+        if (minutesLeft <= 5) {
+            questionCard.classList.add('time-pressure-high');
+            this.updateQuestionContext("⏰ Final Stretch");
+        } else if (minutesLeft <= 10) {
+            questionCard.classList.add('time-pressure-medium');
+        } else {
+            questionCard.classList.add('time-pressure-low');
         }
     }
 
@@ -133,6 +223,32 @@ class EngagementManager {
     getAverageSpeed() {
         if (this.answerSpeeds.length === 0) return 0;
         return this.answerSpeeds.reduce((a, b) => a + b, 0) / this.answerSpeeds.length;
+    }
+
+    // New method to handle time's up celebration
+    handleTimeUpCelebration() {
+        this.showCompletionCelebration();
+    }
+
+    showCompletionCelebration() {
+        const celebration = document.createElement('div');
+        celebration.className = 'completion-celebration';
+        celebration.innerHTML = `
+            <div class="celebration-content">
+                <span class="celebration-emoji">🎊</span>
+                <span class="celebration-text">Amazing! You completed your self-investment journey!</span>
+            </div>
+        `;
+        document.body.appendChild(celebration);
+
+        // Animate in
+        setTimeout(() => celebration.classList.add('show'), 100);
+
+        // Remove after 4 seconds (will be replaced by modal)
+        setTimeout(() => {
+            celebration.classList.remove('show');
+            setTimeout(() => celebration.remove(), 500);
+        }, 4000);
     }
 }
 
@@ -164,6 +280,7 @@ function varyQuestionDisplay() {
         questionText.style.fontWeight = '';
     }
 }
+
 class PsychometricApp {
     constructor() {
         this.state = {
@@ -176,10 +293,27 @@ class PsychometricApp {
             answers: {},
             responseTimestamps: [],
             results: {},
-            analytics: {}
+            analytics: {},
+            // Timer state
+            timer: {
+                totalTime: 15 * 60, // 15 minutes in seconds
+                timeLeft: 15 * 60,
+                isRunning: false,
+                timerId: null,
+                encouragementMessages: [
+                    "💫 Every second brings you closer to self-discovery",
+                    "🌟 You're building lifelong self-awareness skills",
+                    "🎯 This investment will pay dividends in personal growth",
+                    "🚀 Your future self is thanking you for this time",
+                    "🌈 Each minute spent here creates a brighter tomorrow",
+                    "⚡ You're charging your emotional intelligence",
+                    "🎁 This is the gift of self-knowledge unfolding",
+                    "🔍 Discovering the amazing person you are"
+                ]
+            }
         };
         
-        this.isDragging = false; // Add this for slider
+        this.isDragging = false;
         engagementManager = new EngagementManager();
         this.initializeApp();
     }
@@ -240,8 +374,8 @@ class PsychometricApp {
             console.log('Question screen language event listeners added');
         }
         
-        // === SENTIMENT SLIDER EVENTS ===
-   this.setupSentimentButtons();
+        // === SENTIMENT BUTTONS EVENTS ===
+        this.setupSentimentButtons();
         
         // Start button
         const startBtn = document.getElementById('startBtn');
@@ -286,59 +420,173 @@ class PsychometricApp {
         const viewAnalyticsBtn = document.getElementById('viewAnalyticsBtn');
         if (viewAnalyticsBtn) viewAnalyticsBtn.addEventListener('click', () => this.showAnalytics());
         
+        // Time's up modal button
+        const viewResultsBtn = document.getElementById('viewResultsBtn');
+        if (viewResultsBtn) {
+            viewResultsBtn.addEventListener('click', () => {
+                const modal = document.getElementById('timesUpModal');
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+                this.showReports();
+            });
+        }
+        
         console.log('All event listeners setup complete');
     }
     
-    // ===== SENTIMENT SLIDER METHODS =====
-   // ===== SENTIMENT BUTTONS METHODS =====
-setupSentimentButtons() {
-    const buttons = document.querySelectorAll('.sentiment-btn');
-    
-    buttons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            const value = parseInt(e.currentTarget.dataset.value);
-            this.selectSentiment(value);
+    // ===== TIMER METHODS =====
+    startBigTimer() {
+        console.log('Starting 15-minute big timer...');
+        this.state.timer.isRunning = true;
+        this.state.timer.timeLeft = this.state.timer.totalTime;
+        
+        this.updateBigTimerDisplay();
+        this.updateTimerEncouragement();
+        
+        // Start the countdown
+        this.state.timer.timerId = setInterval(() => {
+            this.bigTimerTick();
+        }, 1000);
+    }
+
+    bigTimerTick() {
+        if (!this.state.timer.isRunning) return;
+        
+        this.state.timer.timeLeft--;
+        this.updateBigTimerDisplay();
+        
+        // Update encouragement message every 30 seconds
+        if (this.state.timer.timeLeft % 30 === 0) {
+            this.updateTimerEncouragement();
+        }
+        
+        // Change timer state based on time left
+        this.updateTimerState();
+        
+        if (this.state.timer.timeLeft <= 0) {
+            this.handleTimeUp();
+        }
+    }
+
+    updateBigTimerDisplay() {
+        const timerDisplay = document.getElementById('bigTimerDisplay');
+        const timerProgress = document.querySelector('.timer-progress');
+        
+        if (!timerDisplay || !timerProgress) return;
+        
+        const minutes = Math.floor(this.state.timer.timeLeft / 60);
+        const seconds = this.state.timer.timeLeft % 60;
+        
+        // Update display
+        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Update circular progress
+        const circumference = 2 * Math.PI * 90;
+        const offset = circumference - (this.state.timer.timeLeft / this.state.timer.totalTime) * circumference;
+        timerProgress.style.strokeDashoffset = offset;
+    }
+
+    updateTimerState() {
+        const timerContainer = document.querySelector('.big-timer-container');
+        if (!timerContainer) return;
+        
+        const percentage = (this.state.timer.timeLeft / this.state.timer.totalTime) * 100;
+        
+        // Remove all timer state classes
+        timerContainer.classList.remove('timer-warning', 'timer-critical');
+        
+        if (percentage <= 25) {
+            timerContainer.classList.add('timer-critical');
+        } else if (percentage <= 50) {
+            timerContainer.classList.add('timer-warning');
+        }
+    }
+
+    updateTimerEncouragement() {
+        if (engagementManager) {
+            engagementManager.updateTimerEncouragement();
+        }
+    }
+
+    handleTimeUp() {
+        console.log('Time is up!');
+        this.stopTimer();
+        
+        // Trigger completion celebration
+        if (engagementManager) {
+            engagementManager.handleTimeUpCelebration();
+        }
+        
+        // Show time's up modal after a brief delay
+        setTimeout(() => {
+            const modal = document.getElementById('timesUpModal');
+            if (modal) {
+                modal.classList.add('active');
+            }
+            
+            // Calculate results
+            this.calculateResults();
+        }, 2000);
+    }
+
+    stopTimer() {
+        if (this.state.timer.timerId) {
+            clearInterval(this.state.timer.timerId);
+            this.state.timer.timerId = null;
+        }
+        this.state.timer.isRunning = false;
+    }
+
+    // ===== SENTIMENT BUTTONS METHODS =====
+    setupSentimentButtons() {
+        const buttons = document.querySelectorAll('.sentiment-btn');
+        
+        buttons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const value = parseInt(e.currentTarget.dataset.value);
+                this.selectSentiment(value);
+            });
         });
-    });
-}
+    }
 
-selectSentiment(value) {
-    // Remove selected class from all buttons
-    const allButtons = document.querySelectorAll('.sentiment-btn');
-    allButtons.forEach(btn => btn.classList.remove('selected'));
-    
-    // Add selected class to clicked button
-    const selectedButton = document.querySelector(`[data-value="${value}"]`);
-    if (selectedButton) {
-        selectedButton.classList.add('selected');
+    selectSentiment(value) {
+        // Remove selected class from all buttons
+        const allButtons = document.querySelectorAll('.sentiment-btn');
+        allButtons.forEach(btn => btn.classList.remove('selected'));
+        
+        // Add selected class to clicked button
+        const selectedButton = document.querySelector(`[data-value="${value}"]`);
+        if (selectedButton) {
+            selectedButton.classList.add('selected');
+        }
+        
+        // Update sentiment value
+        const sentimentValue = document.getElementById('sentimentValue');
+        if (sentimentValue) {
+            sentimentValue.value = value;
+        }
+        
+        // Enable next button
+        const nextBtn = document.getElementById('nextBtn');
+        if (nextBtn) nextBtn.disabled = false;
+        
+        // Trigger engagement
+        engagementManager.onAnswerSelected();
     }
-    
-    // Update sentiment value
-    const sentimentValue = document.getElementById('sentimentValue');
-    if (sentimentValue) {
-        sentimentValue.value = value;
-    }
-    
-    // Enable next button
-    const nextBtn = document.getElementById('nextBtn');
-    if (nextBtn) nextBtn.disabled = false;
-    
-    // Trigger engagement
-    engagementManager.onAnswerSelected();
-}
 
-resetSentimentButtons() {
-    const allButtons = document.querySelectorAll('.sentiment-btn');
-    allButtons.forEach(btn => btn.classList.remove('selected'));
-    
-    const sentimentValue = document.getElementById('sentimentValue');
-    if (sentimentValue) {
-        sentimentValue.value = '';
+    resetSentimentButtons() {
+        const allButtons = document.querySelectorAll('.sentiment-btn');
+        allButtons.forEach(btn => btn.classList.remove('selected'));
+        
+        const sentimentValue = document.getElementById('sentimentValue');
+        if (sentimentValue) {
+            sentimentValue.value = '';
+        }
+        
+        const nextBtn = document.getElementById('nextBtn');
+        if (nextBtn) nextBtn.disabled = true;
     }
-    
-    const nextBtn = document.getElementById('nextBtn');
-    if (nextBtn) nextBtn.disabled = true;
-}
     
     // ===== LANGUAGE METHODS =====
     changeLanguage(lang) {
@@ -457,6 +705,9 @@ resetSentimentButtons() {
         
         this.showScreen('questionScreen');
         this.loadCurrentQuestion();
+        
+        // Start the big timer
+        this.startBigTimer();
     }
     
     validateInputs(name, age, gender, occupation) {
@@ -483,49 +734,46 @@ resetSentimentButtons() {
         return true;
     }
     
-   loadCurrentQuestion() {
-    const category = QuestionManager.getCategories()[this.state.currentCategoryIndex];
-    const subcategories = QuestionManager.getSubcategories(category);
-    
-    if (subcategories.length === 0) {
-        this.moveToNextQuestion();
-        return;
-    }
-    
-    const subcategory = subcategories[this.state.currentSubcategoryIndex];
-    const questions = QuestionManager.getQuestions(category, subcategory);
-    
-    if (questions.length === 0) {
-        this.moveToNextQuestion();
-        return;
-    }
-    
-    const question = questions[this.state.currentQuestionIndex];
-    const questionText = QuestionManager.getQuestionText(question);
+    loadCurrentQuestion() {
+        const category = QuestionManager.getCategories()[this.state.currentCategoryIndex];
+        const subcategories = QuestionManager.getSubcategories(category);
+        
+        if (subcategories.length === 0) {
+            this.moveToNextQuestion();
+            return;
+        }
+        
+        const subcategory = subcategories[this.state.currentSubcategoryIndex];
+        const questions = QuestionManager.getQuestions(category, subcategory);
+        
+        if (questions.length === 0) {
+            this.moveToNextQuestion();
+            return;
+        }
+        
+        const question = questions[this.state.currentQuestionIndex];
+        const questionText = QuestionManager.getQuestionText(question);
 
-    // === UPDATED: Category badge (large) + Subcategory only in title ===
-    const currentCategoryElement = document.getElementById('currentCategory');
-    if (currentCategoryElement) {
-        currentCategoryElement.textContent = subcategory; // Only subcategory name
-    }
-    
-    // Update the category badge with just the main category
-    const categoryBadge = document.getElementById('currentCategoryBadge');
-    if (categoryBadge) {
-        categoryBadge.textContent = category; // Just "Resilience", "Emotional", etc.
-    }
+        // Category badge (large) + Subcategory only in title
+        const currentCategoryElement = document.getElementById('currentCategory');
+        if (currentCategoryElement) {
+            currentCategoryElement.textContent = subcategory; // Only subcategory name
+        }
+        
+        // Update the category badge with just the main category
+        const categoryBadge = document.getElementById('currentCategoryBadge');
+        if (categoryBadge) {
+            categoryBadge.textContent = category; // Just "Resilience", "Emotional", etc.
+        }
 
-    // Rest of your existing code remains the same...
-    const currentQuestionNumberElement = document.getElementById('currentQuestionNumber');
-    if (currentQuestionNumberElement) currentQuestionNumberElement.textContent = this.state.currentQuestionIndex + 1;
-    
-    const totalQuestionsElement = document.getElementById('totalQuestions');
-    if (totalQuestionsElement) totalQuestionsElement.textContent = questions.length;
-    
-    const questionTextElement = document.getElementById('questionText');
-    if (questionTextElement) questionTextElement.textContent = questionText;
-
-    
+        const currentQuestionNumberElement = document.getElementById('currentQuestionNumber');
+        if (currentQuestionNumberElement) currentQuestionNumberElement.textContent = this.state.currentQuestionIndex + 1;
+        
+        const totalQuestionsElement = document.getElementById('totalQuestions');
+        if (totalQuestionsElement) totalQuestionsElement.textContent = questions.length;
+        
+        const questionTextElement = document.getElementById('questionText');
+        if (questionTextElement) questionTextElement.textContent = questionText;
 
         // Handle question examples
         const exampleText = QuestionManager.getQuestionExample(question);
@@ -547,7 +795,7 @@ resetSentimentButtons() {
             toggleElement.style.display = 'none';
         }
         
-        // Reset sentiment slider to neutral position
+        // Reset sentiment buttons to neutral position
         this.resetSentimentButtons();
         
         // Update progress
@@ -556,8 +804,10 @@ resetSentimentButtons() {
         // Enable/disable navigation
         const backBtn = document.getElementById('backBtn');
         if (backBtn) backBtn.disabled = this.isFirstQuestion();
+        
         engagementManager.adjustQuestionPacing();
-         varyQuestionDisplay();
+        varyQuestionDisplay();
+        
         // Record timestamp
         this.state.responseTimestamps.push(Date.now());
     }
@@ -565,9 +815,8 @@ resetSentimentButtons() {
     handleAnswer() {
         engagementManager.onAnswerSelected();
     
-    const sentimentValue = document.getElementById('sentimentValue');
-        
-        
+        const sentimentValue = document.getElementById('sentimentValue');
+            
         if (!sentimentValue || !sentimentValue.value) {
             alert("Please select an answer before continuing.");
             return;
@@ -695,6 +944,8 @@ resetSentimentButtons() {
     }
     
     calculateResults() {
+        this.stopTimer(); // Stop timer if it's still running
+        
         this.state.results = {};
         
         // Calculate scores for each category
@@ -820,320 +1071,324 @@ resetSentimentButtons() {
         return card;
     }
     
-async showReports() {
-    this.showScreen('resultScreen');
-    await this.renderSuperpowerDashboard();
-}
-    
-async renderSuperpowerDashboard() {
-    try {
-        // Update user greeting
-        const userGreetingElement = document.getElementById('userGreeting');
-        if (userGreetingElement) {
-            userGreetingElement.textContent = `Here's your unique psychological profile, ${this.state.userName}!`;
-        }
-
-        // Step 1: Render Quick Stats
-        this.renderQuickStats();
-
-        // Step 2: Render Growth Plan
-        this.renderGrowthPlan();
-
-        // Step 3: Render MD Reports
-        await this.renderMDReports();
-
-    } catch (error) {
-        console.error('Error rendering superpower dashboard:', error);
+    async showReports() {
+        this.showScreen('resultScreen');
+        await this.renderSuperpowerDashboard();
     }
-}
     
-async downloadPDFReport() {
-    try {
-        // Show loading state
-        const downloadBtn = document.getElementById('downloadBtn');
-        if (downloadBtn) {
-            const originalText = downloadBtn.textContent;
-            downloadBtn.textContent = 'Generating PDF...';
-            downloadBtn.disabled = true;
-            
-            // Collect all report content
-            const reportsContent = {};
-            for (const [category, result] of Object.entries(this.state.results)) {
-                try {
-                    const report = await ReportLoader.loadReport(category, result.level);
-                    reportsContent[category] = this.stripHTML(report);
-                } catch (error) {
-                    console.error(`Error loading report for ${category}:`, error);
-                    reportsContent[category] = `Report for ${category} - Level ${result.level} not available.`;
-                }
-            }
-            
-            // Get user data
-            const userData = DataManager.getUserData(this.state.userId) || {
-                demographics: this.state.demographics,
-                responses: this.state.answers
-            };
-            
-            // Generate PDF
-            const success = await PDFGenerator.generateReport(
-                userData, 
-                this.state.results, 
-                reportsContent
-            );
-            
-            if (success) {
-                console.log('PDF report generated successfully');
-            }
-            
-            // Restore button state
-            downloadBtn.textContent = originalText;
-            downloadBtn.disabled = false;
-        }
-    } catch (error) {
-        console.error('Error generating PDF report:', error);
-        alert('Error generating PDF report. Please try again.');
-        
-        // Restore button state on error
-        const downloadBtn = document.getElementById('downloadBtn');
-        if (downloadBtn) {
-            downloadBtn.textContent = 'Download Full Report';
-            downloadBtn.disabled = false;
-        }
-    }
-}
-
-// ADD SUPERHERO METHODS HERE (outside downloadPDFReport)
-renderQuickStats() {
-    const quickStatsElement = document.getElementById('quickStats');
-    if (!quickStatsElement) return;
-
-    let statsHTML = '';
-
-    // Calculate overall score
-    const overallScore = Object.values(this.state.results).reduce((sum, result) => sum + result.overall, 0) / Object.keys(this.state.results).length;
-    
-    // Create stat cards for each category
-    for (const [category, result] of Object.entries(this.state.results)) {
-        const levelLabel = ScoringAlgorithm.getLevelLabel(result.level);
-        const levelColor = ScoringAlgorithm.getLevelColor(result.level);
-        
-        statsHTML += `
-            <div class="stat-card">
-                <div class="stat-value" style="color: ${levelColor}">${result.overall.toFixed(1)}</div>
-                <div class="stat-label">${category}</div>
-                <div class="stat-level">${levelLabel}</div>
-            </div>
-        `;
-    }
-
-    // Add overall score card
-    const overallLevel = ScoringAlgorithm.determineLevel(overallScore);
-    const overallColor = ScoringAlgorithm.getLevelColor(overallLevel);
-    
-    statsHTML = `
-        <div class="stat-card">
-            <div class="stat-value" style="color: ${overallColor}">${overallScore.toFixed(1)}</div>
-            <div class="stat-label">Overall Score</div>
-            <div class="stat-level">${ScoringAlgorithm.getLevelLabel(overallLevel)}</div>
-        </div>
-    ` + statsHTML;
-
-    quickStatsElement.innerHTML = statsHTML;
-}
-
-renderGrowthPlan() {
-    const planStepsElement = document.getElementById('planSteps');
-    if (!planStepsElement) return;
-
-    // Find the category with lowest score for focus
-    let lowestCategory = '';
-    let lowestScore = 5; // Start with highest possible
-    
-    for (const [category, result] of Object.entries(this.state.results)) {
-        if (result.overall < lowestScore) {
-            lowestScore = result.overall;
-            lowestCategory = category;
-        }
-    }
-
-    const growthPlan = [
-        { emoji: '📝', text: 'Daily: Practice 5 minutes of mindfulness meditation' },
-        { emoji: '🎯', text: 'Weekly: Set one learning goal and track progress' },
-        { emoji: '🔄', text: 'Bi-weekly: Review and reflect on your growth' },
-        { emoji: '🌟', text: `Monthly: Focus on improving your ${lowestCategory} skills` }
-    ];
-
-    let planHTML = '';
-    growthPlan.forEach((step, index) => {
-        planHTML += `
-            <div class="plan-step">
-                <span class="step-emoji">${step.emoji}</span>
-                <span class="step-text">${step.text}</span>
-            </div>
-        `;
-    });
-
-    planStepsElement.innerHTML = planHTML;
-}
-
-async renderMDReports() {
-    const reportsContainer = document.getElementById('reportsContainer');
-    if (!reportsContainer) return;
-
-    let reportsHTML = '';
-
-    for (const [category, result] of Object.entries(this.state.results)) {
+    async renderSuperpowerDashboard() {
         try {
-            const rawReport = await ReportLoader.loadReport(category, result.level);
-            const parsedReport = ReportParser.parseMarkdownReport(rawReport);
-            const levelLabel = ScoringAlgorithm.getLevelLabel(result.level);
+            // Update user greeting
+            const userGreetingElement = document.getElementById('userGreeting');
+            if (userGreetingElement) {
+                userGreetingElement.textContent = `Here's your unique psychological profile, ${this.state.userName}!`;
+            }
+
+            // Step 1: Render Quick Stats
+            this.renderQuickStats();
+
+            // Step 2: Render Growth Plan
+            this.renderGrowthPlan();
+
+            // Step 3: Render MD Reports
+            await this.renderMDReports();
+
+        } catch (error) {
+            console.error('Error rendering superpower dashboard:', error);
+        }
+    }
+    
+    async downloadPDFReport() {
+        try {
+            // Show loading state
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (downloadBtn) {
+                const originalText = downloadBtn.textContent;
+                downloadBtn.textContent = 'Generating PDF...';
+                downloadBtn.disabled = true;
+                
+                // Collect all report content
+                const reportsContent = {};
+                for (const [category, result] of Object.entries(this.state.results)) {
+                    try {
+                        const report = await ReportLoader.loadReport(category, result.level);
+                        reportsContent[category] = this.stripHTML(report);
+                    } catch (error) {
+                        console.error(`Error loading report for ${category}:`, error);
+                        reportsContent[category] = `Report for ${category} - Level ${result.level} not available.`;
+                    }
+                }
+                
+                // Get user data
+                const userData = DataManager.getUserData(this.state.userId) || {
+                    demographics: this.state.demographics,
+                    responses: this.state.answers
+                };
+                
+                // Generate PDF
+                const success = await PDFGenerator.generateReport(
+                    userData, 
+                    this.state.results, 
+                    reportsContent
+                );
+                
+                if (success) {
+                    console.log('PDF report generated successfully');
+                }
+                
+                // Restore button state
+                downloadBtn.textContent = originalText;
+                downloadBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error generating PDF report:', error);
+            alert('Error generating PDF report. Please try again.');
             
-            reportsHTML += `
-                <div class="report-card">
-                    <div class="report-header" onclick="psychometricApp.toggleReport(this)">
-                        <div class="report-title">
-                            <span class="category-emoji">${this.getCategoryEmoji(category)}</span>
-                            <span>${category} - ${levelLabel}</span>
-                        </div>
-                        <div class="report-expand">➕</div>
-                    </div>
-                    <div class="report-content">
-                        ${this.renderParsedReport(parsedReport)}
-                    </div>
+            // Restore button state on error
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (downloadBtn) {
+                downloadBtn.textContent = 'Download Full Report';
+                downloadBtn.disabled = false;
+            }
+        }
+    }
+
+    renderQuickStats() {
+        const quickStatsElement = document.getElementById('quickStats');
+        if (!quickStatsElement) return;
+
+        let statsHTML = '';
+
+        // Calculate overall score
+        const overallScore = Object.values(this.state.results).reduce((sum, result) => sum + result.overall, 0) / Object.keys(this.state.results).length;
+        
+        // Create stat cards for each category
+        for (const [category, result] of Object.entries(this.state.results)) {
+            const levelLabel = ScoringAlgorithm.getLevelLabel(result.level);
+            const levelColor = ScoringAlgorithm.getLevelColor(result.level);
+            
+            statsHTML += `
+                <div class="stat-card">
+                    <div class="stat-value" style="color: ${levelColor}">${result.overall.toFixed(1)}</div>
+                    <div class="stat-label">${category}</div>
+                    <div class="stat-level">${levelLabel}</div>
                 </div>
             `;
-        } catch (error) {
-            console.error(`Error loading report for ${category}:`, error);
-            // Fallback to raw content
-            reportsHTML += this.createFallbackReport(category, result.level, rawReport);
         }
+
+        // Add overall score card
+        const overallLevel = ScoringAlgorithm.determineLevel(overallScore);
+        const overallColor = ScoringAlgorithm.getLevelColor(overallLevel);
+        
+        statsHTML = `
+            <div class="stat-card">
+                <div class="stat-value" style="color: ${overallColor}">${overallScore.toFixed(1)}</div>
+                <div class="stat-label">Overall Score</div>
+                <div class="stat-level">${ScoringAlgorithm.getLevelLabel(overallLevel)}</div>
+            </div>
+        ` + statsHTML;
+
+        quickStatsElement.innerHTML = statsHTML;
     }
 
-    reportsContainer.innerHTML = reportsHTML;
-}
-renderParsedReport(parsedReport) {
-    let html = '';
-    
-    // Hero Section
-    if (parsedReport.title || parsedReport.description) {
-        html += `
-            <div class="report-hero">
-                <h3>${parsedReport.title || ''}</h3>
-                <p class="hero-description">${parsedReport.description || ''}</p>
-            </div>
-        `;
-    }
-    
-    // Key Characteristics
-    if (parsedReport.keyCharacteristics.length > 0) {
-        html += this.renderSection('keyCharacteristics', parsedReport.keyCharacteristics);
-    }
-    
-    // Daily Impact
-    if (parsedReport.dailyImpact.length > 0) {
-        html += this.renderSection('dailyImpact', parsedReport.dailyImpact);
-    }
-    
-    // Development Strategy
-    if (parsedReport.developmentStrategy.length > 0) {
-        html += this.renderSection('developmentStrategy', parsedReport.developmentStrategy);
-    }
-    
-    // Recommended Exercises
-    if (parsedReport.recommendedExercises.length > 0) {
-        html += this.renderSection('recommendedExercises', parsedReport.recommendedExercises);
-    }
-    
-    return html;
-}
-renderSection(sectionName, items) {
-    const icon = ReportParser.getSectionIcon(sectionName);
-    const title = ReportParser.getSectionTitle(sectionName);
-    
-    let itemsHTML = '';
-    
-    if (sectionName === 'keyCharacteristics') {
-        // Grid layout for characteristics
-        itemsHTML = `
-            <div class="trait-grid">
-                ${items.map(item => `
-                    <div class="trait-card">
-                        <div class="trait-icon">${icon}</div>
-                        <p>${item}</p>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    } else {
-        // List layout for other sections
-        itemsHTML = `
-            <div class="section-list">
-                ${items.map(item => `
-                    <div class="list-item">
-                        <span class="list-bullet">•</span>
-                        <span class="list-text">${item}</span>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }
-    
-    return `
-        <div class="report-section ${sectionName}">
-            <div class="section-header">
-                <span class="section-icon">${icon}</span>
-                <h4>${title}</h4>
-            </div>
-            ${itemsHTML}
-        </div>
-    `;
-}
-createFallbackReport(category, level, rawContent) {
-    const levelLabel = ScoringAlgorithm.getLevelLabel(level);
-    
-    return `
-        <div class="report-card">
-            <div class="report-header" onclick="psychometricApp.toggleReport(this)">
-                <div class="report-title">
-                    <span class="category-emoji">${this.getCategoryEmoji(category)}</span>
-                    <span>${category} - ${levelLabel}</span>
+    renderGrowthPlan() {
+        const planStepsElement = document.getElementById('planSteps');
+        if (!planStepsElement) return;
+
+        // Find the category with lowest score for focus
+        let lowestCategory = '';
+        let lowestScore = 5; // Start with highest possible
+        
+        for (const [category, result] of Object.entries(this.state.results)) {
+            if (result.overall < lowestScore) {
+                lowestScore = result.overall;
+                lowestCategory = category;
+            }
+        }
+
+        const growthPlan = [
+            { emoji: '📝', text: 'Daily: Practice 5 minutes of mindfulness meditation' },
+            { emoji: '🎯', text: 'Weekly: Set one learning goal and track progress' },
+            { emoji: '🔄', text: 'Bi-weekly: Review and reflect on your growth' },
+            { emoji: '🌟', text: `Monthly: Focus on improving your ${lowestCategory} skills` }
+        ];
+
+        let planHTML = '';
+        growthPlan.forEach((step, index) => {
+            planHTML += `
+                <div class="plan-step">
+                    <span class="step-emoji">${step.emoji}</span>
+                    <span class="step-text">${step.text}</span>
                 </div>
-                <div class="report-expand">➕</div>
-            </div>
-            <div class="report-content">
-                <div class="md-content">${rawContent || 'Report not available.'}</div>
-            </div>
-        </div>
-    `;
-}
-getCategoryEmoji(category) {
-    const emojis = {
-        'Emotional': '🎭',
-        'Resilience': '💪', 
-        'Growth': '🌱',
-        'Overthinking': '🤔'
-    };
-    return emojis[category] || '📊';
-}
-toggleReport(headerElement) {
-    const reportCard = headerElement.parentElement;
-    const reportContent = reportCard.querySelector('.report-content');
-    const expandIcon = reportCard.querySelector('.report-expand');
-    
-    // Toggle expanded class
-    reportCard.classList.toggle('expanded');
-    
-    // Toggle content visibility
-    if (reportCard.classList.contains('expanded')) {
-        reportContent.style.maxHeight = reportContent.scrollHeight + 'px';
-        reportContent.classList.add('expanded');
-        expandIcon.textContent = '➖';
-    } else {
-        reportContent.style.maxHeight = '0';
-        reportContent.classList.remove('expanded');
-        expandIcon.textContent = '➕';
+            `;
+        });
+
+        planStepsElement.innerHTML = planHTML;
     }
-}
+
+    async renderMDReports() {
+        const reportsContainer = document.getElementById('reportsContainer');
+        if (!reportsContainer) return;
+
+        let reportsHTML = '';
+
+        for (const [category, result] of Object.entries(this.state.results)) {
+            try {
+                const rawReport = await ReportLoader.loadReport(category, result.level);
+                const parsedReport = ReportParser.parseMarkdownReport(rawReport);
+                const levelLabel = ScoringAlgorithm.getLevelLabel(result.level);
+                
+                reportsHTML += `
+                    <div class="report-card">
+                        <div class="report-header" onclick="psychometricApp.toggleReport(this)">
+                            <div class="report-title">
+                                <span class="category-emoji">${this.getCategoryEmoji(category)}</span>
+                                <span>${category} - ${levelLabel}</span>
+                            </div>
+                            <div class="report-expand">➕</div>
+                        </div>
+                        <div class="report-content">
+                            ${this.renderParsedReport(parsedReport)}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error(`Error loading report for ${category}:`, error);
+                // Fallback to raw content
+                reportsHTML += this.createFallbackReport(category, result.level, rawReport);
+            }
+        }
+
+        reportsContainer.innerHTML = reportsHTML;
+    }
+
+    renderParsedReport(parsedReport) {
+        let html = '';
+        
+        // Hero Section
+        if (parsedReport.title || parsedReport.description) {
+            html += `
+                <div class="report-hero">
+                    <h3>${parsedReport.title || ''}</h3>
+                    <p class="hero-description">${parsedReport.description || ''}</p>
+                </div>
+            `;
+        }
+        
+        // Key Characteristics
+        if (parsedReport.keyCharacteristics.length > 0) {
+            html += this.renderSection('keyCharacteristics', parsedReport.keyCharacteristics);
+        }
+        
+        // Daily Impact
+        if (parsedReport.dailyImpact.length > 0) {
+            html += this.renderSection('dailyImpact', parsedReport.dailyImpact);
+        }
+        
+        // Development Strategy
+        if (parsedReport.developmentStrategy.length > 0) {
+            html += this.renderSection('developmentStrategy', parsedReport.developmentStrategy);
+        }
+        
+        // Recommended Exercises
+        if (parsedReport.recommendedExercises.length > 0) {
+            html += this.renderSection('recommendedExercises', parsedReport.recommendedExercises);
+        }
+        
+        return html;
+    }
+
+    renderSection(sectionName, items) {
+        const icon = ReportParser.getSectionIcon(sectionName);
+        const title = ReportParser.getSectionTitle(sectionName);
+        
+        let itemsHTML = '';
+        
+        if (sectionName === 'keyCharacteristics') {
+            // Grid layout for characteristics
+            itemsHTML = `
+                <div class="trait-grid">
+                    ${items.map(item => `
+                        <div class="trait-card">
+                            <div class="trait-icon">${icon}</div>
+                            <p>${item}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        } else {
+            // List layout for other sections
+            itemsHTML = `
+                <div class="section-list">
+                    ${items.map(item => `
+                        <div class="list-item">
+                            <span class="list-bullet">•</span>
+                            <span class="list-text">${item}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        return `
+            <div class="report-section ${sectionName}">
+                <div class="section-header">
+                    <span class="section-icon">${icon}</span>
+                    <h4>${title}</h4>
+                </div>
+                ${itemsHTML}
+            </div>
+        `;
+    }
+
+    createFallbackReport(category, level, rawContent) {
+        const levelLabel = ScoringAlgorithm.getLevelLabel(level);
+        
+        return `
+            <div class="report-card">
+                <div class="report-header" onclick="psychometricApp.toggleReport(this)">
+                    <div class="report-title">
+                        <span class="category-emoji">${this.getCategoryEmoji(category)}</span>
+                        <span>${category} - ${levelLabel}</span>
+                    </div>
+                    <div class="report-expand">➕</div>
+                </div>
+                <div class="report-content">
+                    <div class="md-content">${rawContent || 'Report not available.'}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    getCategoryEmoji(category) {
+        const emojis = {
+            'Emotional': '🎭',
+            'Resilience': '💪', 
+            'Growth': '🌱',
+            'Overthinking': '🤔'
+        };
+        return emojis[category] || '📊';
+    }
+
+    toggleReport(headerElement) {
+        const reportCard = headerElement.parentElement;
+        const reportContent = reportCard.querySelector('.report-content');
+        const expandIcon = reportCard.querySelector('.report-expand');
+        
+        // Toggle expanded class
+        reportCard.classList.toggle('expanded');
+        
+        // Toggle content visibility
+        if (reportCard.classList.contains('expanded')) {
+            reportContent.style.maxHeight = reportContent.scrollHeight + 'px';
+            reportContent.classList.add('expanded');
+            expandIcon.textContent = '➖';
+        } else {
+            reportContent.style.maxHeight = '0';
+            reportContent.classList.remove('expanded');
+            expandIcon.textContent = '➕';
+        }
+    }
     
     // Helper method to strip HTML from reports
     stripHTML(html) {
@@ -1157,6 +1412,9 @@ toggleReport(headerElement) {
                 DataManager.clearUserData(this.state.userId);
             }
             
+            // Stop any running timer
+            this.stopTimer();
+            
             // Reset state
             this.state = {
                 userId: null,
@@ -1168,7 +1426,23 @@ toggleReport(headerElement) {
                 answers: {},
                 responseTimestamps: [],
                 results: {},
-                analytics: {}
+                analytics: {},
+                timer: {
+                    totalTime: 15 * 60,
+                    timeLeft: 15 * 60,
+                    isRunning: false,
+                    timerId: null,
+                    encouragementMessages: [
+                        "💫 Every second brings you closer to self-discovery",
+                        "🌟 You're building lifelong self-awareness skills",
+                        "🎯 This investment will pay dividends in personal growth",
+                        "🚀 Your future self is thanking you for this time",
+                        "🌈 Each minute spent here creates a brighter tomorrow",
+                        "⚡ You're charging your emotional intelligence",
+                        "🎁 This is the gift of self-knowledge unfolding",
+                        "🔍 Discovering the amazing person you are"
+                    ]
+                }
             };
             
             // Reset form
@@ -1223,6 +1497,9 @@ toggleReport(headerElement) {
                             this.findCurrentPosition();
                             this.showScreen('questionScreen');
                             this.loadCurrentQuestion();
+                            
+                            // Start timer for existing session
+                            this.startBigTimer();
                             return;
                         } else {
                             // Clear the incomplete session
