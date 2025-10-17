@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind Insight Pro - Psychometric Assessment</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="apple-touch-icon" href="assets/icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+    <div class="container">
+        <!-- Intro Screen -->
+        <div id="introScreen" class="screen active">
+            <div class="intro-content">
+                <div class="app-logo">
+        <img src="assets/logo.png" alt="Mind Insight Pro" class="main-logo">
+    </div>
+                <h1>Inside Mind Pro</h1>
+                <p>Discover your psychological strengths with our comprehensive multi-language assessment</p>
+                
+                <!-- Beautiful Prominent Language Selector -->
+                <div class="language-selector-prominent">
+                    <div class="language-title">Choose Your Language / अपनी भाषा चुनें / আপনার ভাষা নির্বাচন করুন</div>
+                    <div class="language-options-grid">
+                        <div class="language-option-prominent active" data-lang="en">
+                            <span class="language-flag">🇺🇸</span>
+                            <span class="language-name">English</span>
+                        </div>
+                        <div class="language-option-prominent" data-lang="hi">
+                            <span class="language-flag">🇮🇳</span>
+                            <span class="language-name">हिन्दी</span>
+                        </div>
+                        <div class="language-option-prominent" data-lang="bn">
+                            <span class="language-flag">🇧🇩</span>
+                            <span class="language-name">বাংলা</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="user-input">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="userName" class="form-control" placeholder="Enter your name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Age</label>
+                        <input type="number" id="userAge" class="form-control" placeholder="Your age">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Gender</label>
+                        <select id="userGender" class="form-control">
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                            <option value="prefer-not-to-say">Prefer not to say</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Occupation</label>
+                        <select id="userOccupation" class="form-control">
+                            <option value="">Select Occupation</option>
+                            <option value="student">Student</option>
+                            <option value="employed">Employed</option>
+                            <option value="self-employed">Self-Employed</option>
+                            <option value="unemployed">Unemployed</option>
+                            <option value="retired">Retired</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button id="startBtn" class="btn primary">
+                    <span>Start Assessment</span>
+                    <span>→</span>
+                </button>
+
+                <div class="privacy-notice">
+                    <p><strong>Privacy Notice:</strong> Your responses are automatically saved for research and analytics purposes. All data is anonymized and used only to improve the assessment quality.</p>
+                </div>
+            </div>
+        </div>
+
+       <div id="questionScreen" class="screen">
+    <div class="question-header">
+        <div class="category-badge" id="currentCategoryBadge">Emotional</div>
+        <h2 class="category-title" id="currentCategory">Self Awareness</h2>
+        <div class="question-counter">
+            Question <span id="currentQuestionNumber">1</span> of <span id="totalQuestions">10</span>
+        </div>
+    </div>
+    
+    <!-- ADD THIS LANGUAGE SELECTOR FOR QUESTION SCREEN -->
+    <div class="language-selector-question">
+        <div class="language-options-question">
+            <div class="language-option-question active" data-lang="en">
+                <span class="language-flag">🇺🇸</span>
+            </div>
+            <div class="language-option-question" data-lang="hi">
+                <span class="language-flag">🇮🇳</span>
+            </div>
+            <div class="language-option-question" data-lang="bn">
+                <span class="language-flag">🇧🇩</span>
+            </div>
+        </div>
+    </div>
+            
+            <div class="question-card">
+    <div class="question-text" id="questionText">I can accurately identify my emotions as I experience them.</div>
+    
+    <!-- ADD THIS NEW SECTION FOR EXAMPLES -->
+    <div class="question-example-container">
+        <div class="example-toggle" id="exampleToggle">
+            <span class="toggle-icon">➕</span>
+            <span class="toggle-text">Show Example</span>
+        </div>
+        <div class="question-example" id="questionExample" style="display: none;">
+            <!-- Example content will appear here -->
+        </div>
+    </div>
+    
+    <div class="sentiment-slider-container">
+    <div class="slider-header">
+        <span class="slider-label-left">😠 Strongly Disagree</span>
+        <span class="slider-label-right">Strongly Agree 😄</span>
+    </div>
+    
+    <div class="sentiment-slider" id="sentimentSlider">
+        <div class="slider-track">
+            <div class="slider-fill" id="sliderFill"></div>
+        </div>
+        <div class="slider-thumb" id="sliderThumb">
+            <div class="thumb-value" id="thumbValue">3</div>
+        </div>
+    </div>
+    
+    <div class="slider-emotion" id="sliderEmotion">😐</div>
+    <div class="slider-text" id="sliderText">Neutral</div>
+    
+    <!-- Hidden input to store the value -->
+    <input type="hidden" id="sentimentValue" name="answer" value="3">
+</div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span>Progress</span>
+                    <span id="progressPercentage">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            
+            <div class="navigation-buttons">
+                <button id="backBtn" class="btn secondary">Previous</button>
+                <button id="skipBtn" class="btn secondary">Skip Question</button>
+                <button id="nextBtn" class="btn primary">Next Question</button>
+            </div>
+        </div>
+
+        <!-- Analytics Screen -->
+        <div id="analyticsScreen" class="screen">
+            <div class="analytics-header">
+                <h2>Advanced Analytics</h2>
+                <p>Detailed analysis of your psychological profile</p>
+            </div>
+            
+            <div class="analytics-grid" id="analyticsGrid">
+                <!-- Analytics will be populated here -->
+            </div>
+            
+            <div class="action-buttons">
+                <button id="viewReportsBtn" class="btn primary">View Detailed Reports</button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+<div id="resultScreen" class="screen">
+    <!-- HERO SECTION -->
+    <div class="result-hero">
+        <div class="hero-content">
+            <div class="hero-badge">🎉 Your Results Are In!</div>
+            <h1>Your Psychological Superpowers</h1>
+            <div class="user-greeting" id="userGreeting">Here's your unique profile, [Name]!</div>
+        </div>
+    </div>
+
+    <!-- QUICK STATS -->
+    <div class="quick-stats" id="quickStats">
+        <!-- Will be populated by JavaScript -->
+    </div>
+
+    <!-- GROWTH PLAN -->
+    <div class="growth-plan">
+        <h2>🎯 Your 30-Day Growth Journey</h2>
+        <div class="plan-steps" id="planSteps">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- MD REPORTS - EXPANDABLE SECTIONS -->
+    <div class="reports-container" id="reportsContainer">
+        <!-- Category cards will be populated here -->
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-buttons">
+        <button id="restartBtn" class="btn secondary">Take Test Again</button>
+        <button id="downloadBtn" class="btn primary">Download Superpower Profile</button>
+        <button id="viewAnalyticsBtn" class="btn primary">View Analytics</button>
+    </div>
+</div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/questions.js"></script>
+    <script src="js/scoring.js"></script>
+    <script src="js/storage.js"></script>
+    <script src=js/report-parser.js></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/pdf-generator.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
