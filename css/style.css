@@ -1892,3 +1892,193 @@ body {
         padding: 10px 16px;
     }
 }
+/* Mobile Responsive Timer Styles */
+@media (max-width: 768px) {
+    .big-timer-container {
+        padding: 20px 15px;
+        margin: 15px 0;
+        border-radius: 15px;
+    }
+
+    .timer-motivation {
+        margin-bottom: 20px;
+    }
+
+    .motivation-icon {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+    }
+
+    .motivation-text {
+        font-size: 1.1rem;
+        line-height: 1.4;
+        margin-bottom: 8px;
+    }
+
+    .motivation-subtext {
+        font-size: 0.9rem;
+        line-height: 1.3;
+    }
+
+    .big-timer-display {
+        margin: 20px 0;
+        padding: 0 10px;
+    }
+
+    .timer-circle {
+        width: 160px;
+        height: 160px;
+        margin: 0 auto;
+    }
+
+    .timer-svg {
+        width: 160px;
+        height: 160px;
+    }
+
+    .timer-background,
+    .timer-progress {
+        cx: 80;
+        cy: 80;
+        r: 72; /* Slightly smaller radius for mobile */
+        stroke-width: 6; /* Thinner stroke for mobile */
+    }
+
+    .timer-time {
+        font-size: 2rem;
+    }
+
+    .timer-label {
+        font-size: 0.8rem;
+    }
+
+    .timer-encouragement {
+        margin-top: 15px;
+    }
+
+    .encouragement-message {
+        font-size: 0.95rem;
+        padding: 10px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .big-timer-container {
+        padding: 15px 12px;
+        margin: 10px 0;
+    }
+
+    .motivation-icon {
+        font-size: 2rem;
+    }
+
+    .motivation-text {
+        font-size: 1rem;
+    }
+
+    .motivation-subtext {
+        font-size: 0.85rem;
+    }
+
+    .timer-circle {
+        width: 140px;
+        height: 140px;
+    }
+
+    .timer-svg {
+        width: 140px;
+        height: 140px;
+    }
+
+    .timer-background,
+    .timer-progress {
+        cx: 70;
+        cy: 70;
+        r: 65;
+        stroke-width: 5;
+    }
+
+    .timer-time {
+        font-size: 1.8rem;
+    }
+
+    .timer-label {
+        font-size: 0.75rem;
+    }
+
+    .encouragement-message {
+        font-size: 0.9rem;
+        padding: 8px 14px;
+    }
+}
+
+@media (max-width: 360px) {
+    .timer-circle {
+        width: 120px;
+        height: 120px;
+    }
+
+    .timer-svg {
+        width: 120px;
+        height: 120px;
+    }
+
+    .timer-background,
+    .timer-progress {
+        cx: 60;
+        cy: 60;
+        r: 55;
+        stroke-width: 4;
+    }
+
+    .timer-time {
+        font-size: 1.6rem;
+    }
+
+    .timer-label {
+        font-size: 0.7rem;
+    }
+}
+
+/* Ensure proper container constraints */
+.container {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.question-screen {
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Fix for very small screens */
+@media (max-width: 320px) {
+    .big-timer-container {
+        padding: 12px 8px;
+    }
+    
+    .motivation-text {
+        font-size: 0.95rem;
+    }
+    
+    .timer-circle {
+        width: 110px;
+        height: 110px;
+    }
+    
+    .timer-svg {
+        width: 110px;
+        height: 110px;
+    }
+    
+    .timer-background,
+    .timer-progress {
+        cx: 55;
+        cy: 55;
+        r: 50;
+    }
+    
+    .timer-time {
+        font-size: 1.4rem;
+    }
+}
