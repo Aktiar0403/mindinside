@@ -241,7 +241,7 @@ class PsychometricApp {
         }
         
         // === SENTIMENT SLIDER EVENTS ===
-        this.setupSliderEvents();
+   this.setupSentimentButtons();
         
         // Start button
         const startBtn = document.getElementById('startBtn');
@@ -548,7 +548,7 @@ resetSentimentButtons() {
         }
         
         // Reset sentiment slider to neutral position
-        this.resetSlider();
+        this.resetSentimentButtons();
         
         // Update progress
         this.updateProgress();
