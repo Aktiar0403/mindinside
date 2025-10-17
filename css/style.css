@@ -1571,3 +1571,102 @@ body {
     margin-bottom: 10px !important;
     border-left: 3px solid #667eea !important;
 }
+/* Sentiment Buttons Styling */
+.sentiment-buttons-container {
+    margin: 2rem 0;
+}
+
+.sentiment-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.sentiment-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+.sentiment-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.5s;
+}
+
+.sentiment-btn:hover::before {
+    left: 100%;
+}
+
+.sentiment-btn:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sentiment-btn.selected {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), #4f46e5);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+}
+
+.sentiment-emoji {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.sentiment-btn.selected .sentiment-emoji {
+    transform: scale(1.2);
+}
+
+.sentiment-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.sentiment-btn.selected .sentiment-label {
+    color: white;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .sentiment-buttons-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.25rem;
+    }
+    
+    .sentiment-btn {
+        padding: 0.75rem 0.25rem;
+        min-height: 70px;
+    }
+    
+    .sentiment-emoji {
+        font-size: 1.5rem;
+    }
+    
+    .sentiment-label {
+        font-size: 0.7rem;
+    }
+}

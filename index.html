@@ -123,7 +123,32 @@
         </div>
     </div>
     
-    <div class="sentiment-slider-container">
+    <!-- Replace the entire slider section with this -->
+<div class="sentiment-buttons-container">
+    <div class="sentiment-buttons-grid">
+        <button class="sentiment-btn" data-value="1">
+            <span class="sentiment-emoji">😠</span>
+            <span class="sentiment-label">Strongly Disagree</span>
+        </button>
+        <button class="sentiment-btn" data-value="2">
+            <span class="sentiment-emoji">😕</span>
+            <span class="sentiment-label">Disagree</span>
+        </button>
+        <button class="sentiment-btn" data-value="3">
+            <span class="sentiment-emoji">😐</span>
+            <span class="sentiment-label">Neutral</span>
+        </button>
+        <button class="sentiment-btn" data-value="4">
+            <span class="sentiment-emoji">😊</span>
+            <span class="sentiment-label">Agree</span>
+        </button>
+        <button class="sentiment-btn" data-value="5">
+            <span class="sentiment-emoji">😄</span>
+            <span class="sentiment-label">Strongly Agree</span>
+        </button>
+    </div>
+    <input type="hidden" id="sentimentValue" name="sentimentValue" value="">
+</div><div class="sentiment-slider-container">
     <div class="slider-header">
         <span class="slider-label-left">😠 Strongly Disagree</span>
         <span class="slider-label-right">Strongly Agree 😄</span>

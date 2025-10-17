@@ -290,129 +290,55 @@ class PsychometricApp {
     }
     
     // ===== SENTIMENT SLIDER METHODS =====
-   setupSliderEvents() {
-    const slider = document.getElementById('sentimentSlider');
-    const sliderTrack = document.querySelector('.slider-track');
+   // ===== SENTIMENT BUTTONS METHODS =====
+setupSentimentButtons() {
+    const buttons = document.querySelectorAll('.sentiment-btn');
     
-    if (!slider || !sliderTrack) return;
-    
-    let isDragging = false;
-    
-    // Mouse events
-    slider.addEventListener('mousedown', (e) => this.startDrag(e));
-    document.addEventListener('mousemove', (e) => this.drag(e));
-    document.addEventListener('mouseup', () => this.stopDrag());
-    
-    // Touch events for mobile (FIXED VERSION)
-    slider.addEventListener('touchstart', (e) => this.startDrag(e), { passive: false });
-    document.addEventListener('touchmove', (e) => this.drag(e), { passive: false });
-    document.addEventListener('touchend', () => this.stopDrag(), { passive: false });
-    
-    // Click on track to move thumb
-    sliderTrack.addEventListener('click', (e) => {
-        this.moveToPosition(e.clientX || e.touches[0].clientX);
+    buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const value = parseInt(e.currentTarget.dataset.value);
+            this.selectSentiment(value);
+        });
     });
 }
-    startDrag(e) {
-        this.isDragging = true;
-        this.moveToPosition(e.clientX || e.touches[0].clientX);
-        e.preventDefault();
+
+selectSentiment(value) {
+    // Remove selected class from all buttons
+    const allButtons = document.querySelectorAll('.sentiment-btn');
+    allButtons.forEach(btn => btn.classList.remove('selected'));
+    
+    // Add selected class to clicked button
+    const selectedButton = document.querySelector(`[data-value="${value}"]`);
+    if (selectedButton) {
+        selectedButton.classList.add('selected');
     }
     
-    drag(e) {
-        if (!this.isDragging) return;
-        this.moveToPosition(e.clientX || e.touches[0].clientX);
-        e.preventDefault();
-    }
-    
-    stopDrag() {
-        this.isDragging = false;
-    }
-    
-    moveToPosition(clientX) {
-        const slider = document.getElementById('sentimentSlider');
-        const thumb = document.getElementById('sliderThumb');
-        const sliderFill = document.getElementById('sliderFill');
-        const thumbValue = document.getElementById('thumbValue');
-        const sliderEmotion = document.getElementById('sliderEmotion');
-        const sliderText = document.getElementById('sliderText');
-        const sentimentValue = document.getElementById('sentimentValue');
-        const nextBtn = document.getElementById('nextBtn');
-        
-        if (!slider || !thumb) return;
-        
-        const sliderRect = slider.getBoundingClientRect();
-        const sliderWidth = sliderRect.width;
-        const sliderLeft = sliderRect.left;
-        
-        // Calculate position (0 to 1)
-        let position = (clientX - sliderLeft) / sliderWidth;
-        position = Math.max(0, Math.min(1, position)); // Clamp between 0-1
-        
-        // Convert to value 1-5
-        const value = Math.round(position * 4) + 1;
-        
-        // Calculate percentage for thumb position (10% padding on sides)
-        const thumbPosition = (position * 80) + 10;
-        
-        // Update UI
-        thumb.style.left = `${thumbPosition}%`;
-        sliderFill.style.width = `${thumbPosition}%`;
-        thumbValue.textContent = value;
+    // Update sentiment value
+    const sentimentValue = document.getElementById('sentimentValue');
+    if (sentimentValue) {
         sentimentValue.value = value;
-        
-        // Update emotion and text based on value
-        this.updateSliderDisplay(value);
-        
-        // Enable next button
-        if (nextBtn) nextBtn.disabled = false;
     }
     
-    updateSliderDisplay(value) {
-        const sliderEmotion = document.getElementById('sliderEmotion');
-        const sliderText = document.getElementById('sliderText');
-        
-        if (!sliderEmotion || !sliderText) return;
-        
-        const emotions = {
-            1: { emoji: '😠', text: 'Strongly Disagree', color: '#e53e3e' },
-            2: { emoji: '😕', text: 'Disagree', color: '#ed8936' },
-            3: { emoji: '😐', text: 'Neutral', color: '#f6e05e' },
-            4: { emoji: '😊', text: 'Agree', color: '#68d391' },
-            5: { emoji: '😄', text: 'Strongly Agree', color: '#38a169' }
-        };
-        
-        const current = emotions[value] || emotions[3];
-        
-        sliderEmotion.textContent = current.emoji;
-        sliderEmotion.style.color = current.color;
-        sliderEmotion.setAttribute('data-value', value);
-        
-        sliderText.textContent = current.text;
-        sliderText.style.color = current.color;
+    // Enable next button
+    const nextBtn = document.getElementById('nextBtn');
+    if (nextBtn) nextBtn.disabled = false;
+    
+    // Trigger engagement
+    engagementManager.onAnswerSelected();
+}
+
+resetSentimentButtons() {
+    const allButtons = document.querySelectorAll('.sentiment-btn');
+    allButtons.forEach(btn => btn.classList.remove('selected'));
+    
+    const sentimentValue = document.getElementById('sentimentValue');
+    if (sentimentValue) {
+        sentimentValue.value = '';
     }
     
-    resetSlider() {
-        const thumb = document.getElementById('sliderThumb');
-        const sliderFill = document.getElementById('sliderFill');
-        const thumbValue = document.getElementById('thumbValue');
-        const sentimentValue = document.getElementById('sentimentValue');
-        const nextBtn = document.getElementById('nextBtn');
-        
-        if (thumb && sliderFill) {
-            // Reset to neutral position (value 3)
-            thumb.style.left = '50%';
-            sliderFill.style.width = '50%';
-            thumbValue.textContent = '3';
-            sentimentValue.value = '3';
-            
-            // Update display
-            this.updateSliderDisplay(3);
-            
-            // Disable next button until user interacts
-            if (nextBtn) nextBtn.disabled = true;
-        }
-    }
+    const nextBtn = document.getElementById('nextBtn');
+    if (nextBtn) nextBtn.disabled = true;
+}
     
     // ===== LANGUAGE METHODS =====
     changeLanguage(lang) {
