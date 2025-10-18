@@ -1236,55 +1236,129 @@ class PsychometricApp {
     }
 
    async renderMDReports() {
+    console.log('🔄 STARTING renderMDReports');
+    
     const reportsContainer = document.getElementById('reportsContainer');
     if (!reportsContainer) {
-        console.error('Reports container not found!');
+        console.error('❌ REPORTS CONTAINER NOT FOUND!');
         return;
     }
 
-    let reportsHTML = '';
+    console.log('📊 Current results:', this.state.results);
+    
+    // EMERGENCY VISIBLE TEST - Always show something
+    let emergencyHTML = `
+        <div style="background: #ffebee; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #f44336;">
+            <h3>🛠️ DEBUG MODE - Report Rendering</h3>
+            <p>Results count: ${Object.keys(this.state.results).length}</p>
+            <p>Container found: YES</p>
+            <button onclick="psychometricApp.debugReports()" style="padding: 10px; background: #f44336; color: white; border: none; border-radius: 5px; margin: 5px;">
+                Run Debug
+            </button>
+        </div>
+    `;
 
-    for (const [category, result] of Object.entries(this.state.results)) {
-        try {
-            console.log(`Loading report for ${category}, level ${result.level}`);
+    let reportsHTML = emergencyHTML; // Start with debug info
+
+    // Check if we have results
+    if (!this.state.results || Object.keys(this.state.results).length === 0) {
+        reportsHTML += `
+            <div style="background: #fff3e0; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+                <h4>❌ No Results Available</h4>
+                <p>The assessment might not be completed or results weren't calculated.</p>
+                <p>Try running: <code>psychometricApp.calculateResults()</code> in console</p>
+            </div>
+        `;
+    } else {
+        console.log('✅ We have results, processing categories...');
+        
+        for (const [category, result] of Object.entries(this.state.results)) {
+            console.log(`Processing category: ${category}`, result);
             
-            const rawReport = await ReportLoader.loadReport(category, result.level);
-            console.log(`Raw report loaded for ${category}:`, rawReport);
-            
-            if (!rawReport) {
-                throw new Error('No report content received');
-            }
-            
-            const parsedReport = ReportParser.parseMarkdownReport(rawReport);
-            console.log(`Parsed report for ${category}:`, parsedReport);
-            
-            const levelLabel = ScoringAlgorithm.getLevelLabel(result.level);
-            
-            reportsHTML += `
-                <div class="report-card">
-                    <div class="report-header" onclick="psychometricApp.toggleReport(this)">
-                        <div class="report-title">
-                            <span class="category-emoji">${this.getCategoryEmoji(category)}</span>
-                            <span>${category} - ${levelLabel}</span>
+            try {
+                // TEST: Use hardcoded report content first
+                const testReport = `
+## ${category} - Level ${result.level}
+Test proficiency description for ${category}.
+
+**Key Characteristics**
+- Test characteristic 1
+- Test characteristic 2  
+- Test characteristic 3
+
+**Impact on Daily Life**
+- Test impact 1
+- Test impact 2
+
+**Development Strategy**
+- Test strategy 1
+- Test strategy 2
+                `;
+                
+                const parsedReport = ReportParser.parseMarkdownReport(testReport);
+                console.log(`Parsed report for ${category}:`, parsedReport);
+                
+                const levelLabel = ScoringAlgorithm.getLevelLabel(result.level);
+                
+                reportsHTML += `
+                    <div class="report-card" style="background: white; padding: 0; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <div class="report-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 10px 10px 0 0; cursor: pointer;" onclick="psychometricApp.toggleReport(this)">
+                            <div class="report-title" style="display: flex; align-items: center; gap: 10px; font-weight: bold;">
+                                <span class="category-emoji">${this.getCategoryEmoji(category)}</span>
+                                <span>${category} - ${levelLabel}</span>
+                            </div>
+                            <div class="report-expand">➕</div>
                         </div>
-                        <div class="report-expand">➕</div>
+                        <div class="report-content" style="padding: 20px; display: block; max-height: none;">
+                            <h4>${parsedReport.title || category} Report</h4>
+                            <p><strong>Level:</strong> ${result.level}</p>
+                            <p><strong>Score:</strong> ${result.overall.toFixed(1)}</p>
+                            <div style="margin-top: 15px;">
+                                <h5>Key Characteristics:</h5>
+                                <ul>
+                                    ${parsedReport.keyCharacteristics.map(char => `<li>${char}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                    <div class="report-content">
-                        ${this.renderParsedReport(parsedReport)}
+                `;
+                
+            } catch (error) {
+                console.error(`Error with category ${category}:`, error);
+                reportsHTML += `
+                    <div style="background: #ffebee; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <strong>${category} Error:</strong> ${error.message}
                     </div>
-                </div>
-            `;
-        } catch (error) {
-            console.error(`Error loading report for ${category}:`, error);
-            reportsHTML += this.createFallbackReport(category, result.level, 'Report content not available');
+                `;
+            }
         }
     }
 
-    if (!reportsHTML) {
-        reportsHTML = '<div class="no-reports">No reports available. Please complete the assessment first.</div>';
-    }
-
+    console.log('📝 Final HTML length:', reportsHTML.length);
     reportsContainer.innerHTML = reportsHTML;
+    console.log('✅ renderMDReports completed');
+}
+// Quick debug method
+quickDebug() {
+    console.log('=== QUICK DEBUG ===');
+    console.log('Active screen:', document.querySelector('.screen.active')?.id);
+    console.log('Results:', this.state.results);
+    console.log('User:', this.state.userName);
+    
+    // Force show test content
+    const container = document.getElementById('reportsContainer');
+    if (container) {
+        container.innerHTML = `
+            <div style="background: #4CAF50; color: white; padding: 30px; border-radius: 15px; text-align: center; margin: 20px;">
+                <h2>🎉 TEST CONTENT LOADED!</h2>
+                <p>If you see this, the container works!</p>
+                <p>Results: ${Object.keys(this.state.results).length} categories</p>
+                <div style="background: white; color: #333; padding: 15px; border-radius: 8px; margin: 15px;">
+                    <strong>Next step:</strong> Check browser console for details
+                </div>
+            </div>
+        `;
+    }
 }
 
     renderParsedReport(parsedReport) {
