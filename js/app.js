@@ -226,9 +226,18 @@ class EngagementManager {
     }
 
     // New method to handle time's up celebration
-    handleTimeUpCelebration() {
-        this.showCompletionCelebration();
+   handleTimeUp() {
+    console.log('Time is up! Calculating results...');
+    this.stopTimer();
+    
+    // Directly calculate and show results without modal
+    this.calculateResults();
+    
+    // Optional: Show completion celebration briefly
+    if (engagementManager) {
+        engagementManager.showCompletionCelebration();
     }
+}
 
     showCompletionCelebration() {
         const celebration = document.createElement('div');

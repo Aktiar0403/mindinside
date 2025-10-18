@@ -1813,22 +1813,8 @@ body {
 }
 
 /* Time's up modal */
-.times-up-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.9);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
 
-.times-up-modal.active {
-    display: flex;
-}
+
 
 .times-up-content {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
