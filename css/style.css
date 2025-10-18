@@ -2082,3 +2082,268 @@ body {
         font-size: 1.4rem;
     }
 }
+/* ===== REPORT CARD STYLES ===== */
+.report-card {
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #e8e8e8;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.report-card:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+}
+
+.report-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.report-header:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.report-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.category-emoji {
+    font-size: 1.5rem;
+}
+
+.report-expand {
+    font-size: 1.3rem;
+    transition: transform 0.3s ease;
+}
+
+.report-card.expanded .report-expand {
+    transform: rotate(180deg);
+}
+
+.report-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+    background: white;
+}
+
+.report-card.expanded .report-content {
+    max-height: 2000px; /* Adjust based on content */
+}
+
+/* Report Hero Section */
+.report-hero {
+    padding: 30px 25px;
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.report-hero h3 {
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.hero-description {
+    color: #666;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Report Sections */
+.report-section {
+    padding: 25px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.report-section:last-child {
+    border-bottom: none;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.section-icon {
+    font-size: 1.5rem;
+}
+
+.section-header h4 {
+    color: #333;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Trait Grid for Key Characteristics */
+.trait-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.trait-card {
+    background: #f8f9ff;
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+}
+
+.trait-card:hover {
+    background: #f0f2ff;
+    transform: translateY(-2px);
+}
+
+.trait-icon {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+}
+
+.trait-card p {
+    margin: 0;
+    color: #555;
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+
+/* List Styles for Other Sections */
+.section-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.list-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+}
+
+.list-bullet {
+    color: #667eea;
+    font-weight: bold;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.list-text {
+    color: #555;
+    line-height: 1.6;
+    flex: 1;
+}
+
+/* Quick Stats Styles */
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #e8e8e8;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.stat-level {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* Growth Plan Styles */
+.growth-plan {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    margin: 30px 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.plan-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.plan-step {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #f8f9ff;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+}
+
+.step-emoji {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.step-text {
+    color: #555;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .trait-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .report-hero {
+        padding: 20px 15px;
+    }
+    
+    .report-section {
+        padding: 20px 15px;
+    }
+    
+    .report-hero h3 {
+        font-size: 1.5rem;
+    }
+}

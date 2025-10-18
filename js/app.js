@@ -1226,41 +1226,57 @@ class PsychometricApp {
         planStepsElement.innerHTML = planHTML;
     }
 
-    async renderMDReports() {
-        const reportsContainer = document.getElementById('reportsContainer');
-        if (!reportsContainer) return;
-
-        let reportsHTML = '';
-
-        for (const [category, result] of Object.entries(this.state.results)) {
-            try {
-                const rawReport = await ReportLoader.loadReport(category, result.level);
-                const parsedReport = ReportParser.parseMarkdownReport(rawReport);
-                const levelLabel = ScoringAlgorithm.getLevelLabel(result.level);
-                
-                reportsHTML += `
-                    <div class="report-card">
-                        <div class="report-header" onclick="psychometricApp.toggleReport(this)">
-                            <div class="report-title">
-                                <span class="category-emoji">${this.getCategoryEmoji(category)}</span>
-                                <span>${category} - ${levelLabel}</span>
-                            </div>
-                            <div class="report-expand">➕</div>
-                        </div>
-                        <div class="report-content">
-                            ${this.renderParsedReport(parsedReport)}
-                        </div>
-                    </div>
-                `;
-            } catch (error) {
-                console.error(`Error loading report for ${category}:`, error);
-                // Fallback to raw content
-                reportsHTML += this.createFallbackReport(category, result.level, rawReport);
-            }
-        }
-
-        reportsContainer.innerHTML = reportsHTML;
+   async renderMDReports() {
+    const reportsContainer = document.getElementById('reportsContainer');
+    if (!reportsContainer) {
+        console.error('Reports container not found!');
+        return;
     }
+
+    let reportsHTML = '';
+
+    for (const [category, result] of Object.entries(this.state.results)) {
+        try {
+            console.log(`Loading report for ${category}, level ${result.level}`);
+            
+            const rawReport = await ReportLoader.loadReport(category, result.level);
+            console.log(`Raw report loaded for ${category}:`, rawReport);
+            
+            if (!rawReport) {
+                throw new Error('No report content received');
+            }
+            
+            const parsedReport = ReportParser.parseMarkdownReport(rawReport);
+            console.log(`Parsed report for ${category}:`, parsedReport);
+            
+            const levelLabel = ScoringAlgorithm.getLevelLabel(result.level);
+            
+            reportsHTML += `
+                <div class="report-card">
+                    <div class="report-header" onclick="psychometricApp.toggleReport(this)">
+                        <div class="report-title">
+                            <span class="category-emoji">${this.getCategoryEmoji(category)}</span>
+                            <span>${category} - ${levelLabel}</span>
+                        </div>
+                        <div class="report-expand">➕</div>
+                    </div>
+                    <div class="report-content">
+                        ${this.renderParsedReport(parsedReport)}
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            console.error(`Error loading report for ${category}:`, error);
+            reportsHTML += this.createFallbackReport(category, result.level, 'Report content not available');
+        }
+    }
+
+    if (!reportsHTML) {
+        reportsHTML = '<div class="no-reports">No reports available. Please complete the assessment first.</div>';
+    }
+
+    reportsContainer.innerHTML = reportsHTML;
+}
 
     renderParsedReport(parsedReport) {
         let html = '';
